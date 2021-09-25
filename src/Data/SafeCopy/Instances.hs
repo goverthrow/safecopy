@@ -45,6 +45,8 @@ import qualified Data.Vector.Generic as VG
 import qualified Data.Vector.Primitive as VP
 import qualified Data.Vector.Storable as VS
 import qualified Data.Vector.Unboxed as VU
+import qualified Data.HashMap.Strict as HM
+import Data.Hashable
 
 instance SafeCopy a => SafeCopy (Prim a) where
   kind = primitive
@@ -110,6 +112,11 @@ instance (SafeCopy a) => SafeCopy (Tree.Tree a) where
     getCopy = contain $ liftM2 Tree.Node safeGet safeGet
     putCopy (Tree.Node root sub) = contain $ safePut root >> safePut sub
     errorTypeName = typeName1
+    
+instance (SafeCopy a, SafeCopy b, Eq a, Hashable a) => SafeCopy (HM.HashMap a b) where
+  getCopy = contain $ fmap HM.fromList safeGet
+  putCopy = contain . safePut . HM.toList
+  errorTypeName = typeName2
 
 iarray_getCopy :: (Ix i, SafeCopy e, SafeCopy i, IArray.IArray a e) => Contained (Get (a i e))
 iarray_getCopy = contain $ do getIx <- getSafeGet
