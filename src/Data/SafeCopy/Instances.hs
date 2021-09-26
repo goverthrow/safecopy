@@ -114,12 +114,12 @@ instance (SafeCopy a) => SafeCopy (Tree.Tree a) where
     putCopy (Tree.Node root sub) = contain $ safePut root >> safePut sub
     errorTypeName = typeName1
     
-instance (SafeCopy a, SafeCopy b, Hashable a) => SafeCopy (HM.HashMap a b) where
+instance (SafeCopy a, SafeCopy b, Eq a, Hashable a) => SafeCopy (HM.HashMap a b) where
   getCopy = contain $ fmap HM.fromList safeGet
   putCopy = contain . safePut . HM.toList
   errorTypeName = typeName2
   
-instance (SafeCopy a, Hashable a) => SafeCopy (HS.HashSet a) where
+instance (SafeCopy a, Eq a, Hashable a) => SafeCopy (HS.HashSet a) where
   getCopy = contain $ fmap HS.fromList safeGet
   putCopy = contain . safePut . HS.toList
   errorTypeName = typeName1
